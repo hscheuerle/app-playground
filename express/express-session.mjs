@@ -9,7 +9,7 @@ import { sign, unsign } from "cookie-signature";
 import { sync as uid } from "uid-safe";
 
 import Cookie from "./session/cookie.mjs";
-import MemoryStore from "./session/memory-store.mjs";
+import MemoryStore from "./stores/memory-store.mjs";
 import Session from "./session/session.mjs";
 import Store from "./session/store.mjs";
 

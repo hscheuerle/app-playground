@@ -1,6 +1,6 @@
 import express from "express";
 import session from "./express-session.mjs";
-import RedisStore from "./connect-redis.mjs";
+import RedisStore from "./stores/redis-store.mjs";
 import { createClient } from "redis";
 
 const app = express();

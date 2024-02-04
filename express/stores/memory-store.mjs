@@ -1,4 +1,4 @@
-import Store from "./store.mjs";
+import Store from "../session/store.mjs";
 
 export default class MemoryStore extends Store {
   constructor() {
