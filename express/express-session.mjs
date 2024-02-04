@@ -147,7 +147,6 @@ function session(options) {
 
   // notify user that this store is not
   // meant for a production environment
-  /* istanbul ignore next: not tested */
   if (env === "production" && store instanceof MemoryStore) {
     console.warn(warning);
   }
