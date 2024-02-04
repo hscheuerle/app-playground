@@ -19,26 +19,26 @@ export default class MemoryStore extends Store {
       }
     }
 
-    callback && defer(callback, null, sessions);
+    callback && setImmediate(callback, null, sessions);
   }
 
   clear(callback) {
     this.sessions = Object.create(null);
-    callback && defer(callback);
+    callback && setImmediate(callback);
   }
 
   destroy(sessionId, callback) {
     delete this.sessions[sessionId];
-    callback && defer(callback);
+    callback && setImmediate(callback);
   }
 
   get(sessionId, callback) {
-    defer(callback, null, getSession.call(this, sessionId));
+    setImmediate(callback, null, getSession.call(this, sessionId));
   }
 
   set(sessionId, session, callback) {
     this.sessions[sessionId] = JSON.stringify(session);
-    callback && defer(callback);
+    callback && setImmediate(callback);
   }
 
   length(callback) {
@@ -57,7 +57,7 @@ export default class MemoryStore extends Store {
       this.sessions[sessionId] = JSON.stringify(currentSession);
     }
 
-    callback && defer(callback);
+    callback && setImmediate(callback);
   }
 }
 

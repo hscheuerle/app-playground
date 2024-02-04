@@ -55,7 +55,7 @@ var warning =
  */
 
 /* istanbul ignore next */
-var defer =
+var setImmediate =
   typeof setImmediate === "function"
     ? setImmediate
     : function (fn) {
@@ -250,7 +250,7 @@ function session(options) {
           req.session.cookie.data
         );
       } catch (err) {
-        defer(next, err);
+        setImmediate(next, err);
       }
     });
 
@@ -320,7 +320,7 @@ function session(options) {
         debug("destroying");
         store.destroy(req.sessionID, function ondestroy(err) {
           if (err) {
-            defer(next, err);
+            setImmediate(next, err);
           }
 
           debug("destroyed");
@@ -345,7 +345,7 @@ function session(options) {
       if (shouldSave(req)) {
         req.session.save(function onsave(err) {
           if (err) {
-            defer(next, err);
+            setImmediate(next, err);
           }
 
           writeend();
@@ -357,7 +357,7 @@ function session(options) {
         debug("touching");
         store.touch(req.sessionID, req.session, function ontouch(err) {
           if (err) {
-            defer(next, err);
+            setImmediate(next, err);
           }
 
           debug("touched");
