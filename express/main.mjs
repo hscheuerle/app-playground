@@ -1,83 +1,56 @@
 import express from "express";
-import pg from "pg";
-import redis from "redis";
-
-const PORT = 5000;
+import session from "./express-session.mjs";
+import RedisStore from "./connect-redis.mjs";
+import { createClient } from "redis";
 
 const app = express();
 
-const cache = redis.createClient({
-  url: "redis://cache:6379",
-});
-
-cache.on("error", (err) => console.log("Redis Client Error", err));
-
-const postgres = new pg.Pool({
-  connectionString:
-    "postgres://user:password@database:5432/postgres?sslmode=disable",
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
+app.set("trust proxy", 1);
 app.set("view engine", "ejs");
 
-// chrome will not respect document cache on the client but safari seems to.
-app.get("/", (_, res) => {
-  // res.setHeader("Cache-Control", "max-age=10");
-  res.render("index", { time: `s: ${new Date().getSeconds()}` });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const redisClient = createClient({
+  url: "redis://redis:6379",
 });
 
-app.get("/api/add-table", async (_, res) => {
-  const client = await postgres.connect();
-  await client.query(`CREATE TABLE IF NOT EXISTS test (value TEXT);`);
-  res.sendStatus(200);
+redisClient.connect();
+
+let redisStore = new RedisStore({ client: redisClient });
+
+//Configure session middleware
+app.use(
+  session({
+    store: redisStore,
+    resave: false, // required: force lightweight session keep alive (touch)
+    saveUninitialized: false, // recommended: only save session when data exists
+    secret: "keyboard cat",
+  })
+);
+
+// sess:Us6D4HIK59Yb-Qx2n076PDz7FnPGHgsc
+// s%3A Us6D4HIK59Yb-Qx2n076PDz7FnPGHgsc .10INJOZ7r6L2nyLjgf % 2BkG21ZbNC3CRYC8jJJqLZkt6w
+
+app.get("/", (req, res) => {
+  const user = {
+    username: req.session.username ?? "",
+  };
+  res.render("index", { user });
 });
 
-app.get("/api/add-one", async (_, res) => {
-  const client = await postgres.connect();
-  await client.query(`INSERT INTO test (value) VALUES ('one');`);
-  res.sendStatus(200);
+app.post("/login", (req, res) => {
+  req.session.username = req.body.username;
+  req.session.password = req.body.password;
+  res.redirect("/");
 });
 
-app.get("/api/list-all", async (_, res) => {
-  const client = await postgres.connect();
-  const result = await client.query(`SELECT * FROM test`);
-  res.json({
-    data: result.rows,
+app.post("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
   });
 });
 
-app.get("/api/set-key", async (_, res) => {
-  await cache.connect();
-  await cache.set("key", "cached value");
-  res.sendStatus(200);
-});
-
-app.get("/api/get-key", async (_, res) => {
-  const result = await cache.get("key");
-  res.json({
-    data: result,
-  });
-});
-
-app.get("/split-clients", (req, res) => {
-  res.setHeader("Cache-Control", "no-store");
-  res.render("split-clients/index", {
-    color: req.headers["x-color"] || "unset",
-  });
-});
-
-app.get("/api/one", (_, res) => {
-  res.setHeader("Cache-Control", "max-age=10, private");
-  res.send(`1: ${new Date().getSeconds()}`);
-});
-
-app.get("/api/two", (_, res) => {
-  res.setHeader("Cache-Control", "max-age=10");
-  res.send(`2: ${new Date().getSeconds()}`);
-});
-
-app.listen(PORT, () => {
-  console.log(`Running on port:${PORT}`);
+app.listen(5000, () => {
+  console.log(`Running on port:${5000}`);
 });

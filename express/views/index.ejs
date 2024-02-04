@@ -1,32 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>User Login</title>
   </head>
-
   <body>
-    <h1>Express App</h1>
+    <main>
+      <h1>User Login</h1>
 
-    <h2>from server</h2>
-    <div><%= time %></div>
-    <h2>api one</h2>
-    <div id="one"></div>
-    <h2>api two</h2>
-    <div id="two"></div>
+      <section>
+        <h2>Current Session</h2>
+        <p><%= user.username %></p>
+      </section>
 
-    <script>
-      fetch("/api/one")
-        .then((res) => res.text())
-        .then((json) => {
-          document.getElementById("one").textContent = json;
-        });
-      fetch("/api/two")
-        .then((res) => res.text())
-        .then((json) => {
-          document.getElementById("two").textContent = json;
-        });
-    </script>
+      <section>
+        <h2>New Session</h2>
+        <form action="/login" method="post">
+          <input type="text" name="username" placeholder="username"></input>
+          <input type="password" name="password" placeholder="password"></input>
+          <input type="submit" value="login"></input>
+        </form>
+      </section>
+
+      <section>
+        <h2>Log out</h2>
+        <form action="/logout" method="post">
+          <input type="submit" value="logout">
+        </form>
+      </section>
+    </main>
   </body>
 </html>

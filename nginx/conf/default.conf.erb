@@ -6,10 +6,6 @@ upstream express {
   server express-app:5000;
 }
 
-upstream nextjs {
-  server nextjs-app:3000;
-}
-
 # http://murmurhash.shorelabs.com/
 split_clients $cookie_color $var_color {
   16.6% red; # 0-16.6
@@ -24,41 +20,21 @@ server {
   listen 80;
   server_name localhost;
 
-  # Nextjs static assets, cached
-  location ~* ^/_next/static/ {
-    proxy_pass http://nextjs;
-    proxy_cache mycache;
-    add_header x-cache-status $upstream_cache_status;
+  location = / {
+    proxy_pass http://express;
   }
 
-  # Nextjs page
-  location = / {
-    proxy_pass http://nextjs;
+  location = /login {
+    proxy_pass http://express;
+  }
+
+  location = /logout {
+    proxy_pass http://express;
   }
 
   location = /split-clients {
     proxy_pass http://express;
     proxy_set_header x-color $var_color;
-  }
-
-  location = /docs {
-    proxy_pass http://nextjs;
-  }
-
-  # nginx static asset
-  location = /next.svg {
-    alias /usr/share/nginx/assets/next.svg;
-    add_header Cache-Control 'public, max-age=31536000, immutable';
-  }
-
-  # nginx static asset
-  location = /vercel.svg {
-    alias /usr/share/nginx/assets/vercel.svg;
-    add_header Cache-Control 'public, max-age=31536000, immutable';
-  }
-
-  location = /favicon.ico {
-    proxy_pass http://nextjs;
   }
 
   # Express api cached, geop, env test
