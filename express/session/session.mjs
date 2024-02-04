@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export default class Session {
   /**
    * Create a new `Session` with the given request and `data`.

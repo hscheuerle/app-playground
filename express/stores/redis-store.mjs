@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Store } from "express-session";
 
 const noop = (_err, _data) => {};

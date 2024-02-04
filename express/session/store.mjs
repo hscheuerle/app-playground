@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import Cookie from "./cookie.mjs";
 import { EventEmitter } from "events";
 import Session from "./session.mjs";

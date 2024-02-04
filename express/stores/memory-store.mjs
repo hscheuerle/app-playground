@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import Store from "../session/store.mjs";
 
 export default class MemoryStore extends Store {

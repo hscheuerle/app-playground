@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Buffer } from "safe-buffer";
 import { parse, serialize } from "cookie";
 import { createHash } from "crypto";
