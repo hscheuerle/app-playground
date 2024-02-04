@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <h1>Express App</h1>
+
+    <h2>from server</h2>
+    <div><%= time %></div>
+    <h2>api one</h2>
+    <div id="one"></div>
+    <h2>api two</h2>
+    <div id="two"></div>
+
+    <script>
+      fetch("/api/one")
+        .then((res) => res.text())
+        .then((json) => {
+          document.getElementById("one").textContent = json;
+        });
+      fetch("/api/two")
+        .then((res) => res.text())
+        .then((json) => {
+          document.getElementById("two").textContent = json;
+        });
+    </script>
+  </body>
+</html>

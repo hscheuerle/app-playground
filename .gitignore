@@ -1,0 +1,9 @@
+.DS_Store
+
+# shouldn't be running compile directly, but can be useful for debugging
+build
+
+# Local only environment variables
+.env.local
+
+node_modules

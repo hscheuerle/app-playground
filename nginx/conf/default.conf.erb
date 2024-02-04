@@ -1,0 +1,77 @@
+# Replaces default.conf existing already in conf.d. Do not rename or remove.
+# 10m is mb. respects cache control
+proxy_cache_path /cache keys_zone=mycache:10m;
+
+upstream express {
+  server express-app:5000;
+}
+
+upstream nextjs {
+  server nextjs-app:3000;
+}
+
+# http://murmurhash.shorelabs.com/
+split_clients $cookie_color $var_color {
+  16.6% red; # 0-16.6
+  16.6% orange; # 16.6-33.2
+  16.6% yellow; # 33.2-49.8
+  16.6% green; # 49.8-66.4
+  16.6% blue; # 66.4-83
+  * purple; #83-100
+}
+
+server {
+  listen 80;
+  server_name localhost;
+
+  # Nextjs static assets, cached
+  location ~* ^/_next/static/ {
+    proxy_pass http://nextjs;
+    proxy_cache mycache;
+    add_header x-cache-status $upstream_cache_status;
+  }
+
+  # Nextjs page
+  location = / {
+    proxy_pass http://nextjs;
+  }
+
+  location = /split-clients {
+    proxy_pass http://express;
+    proxy_set_header x-color $var_color;
+  }
+
+  location = /docs {
+    proxy_pass http://nextjs;
+  }
+
+  # nginx static asset
+  location = /next.svg {
+    alias /usr/share/nginx/assets/next.svg;
+    add_header Cache-Control 'public, max-age=31536000, immutable';
+  }
+
+  # nginx static asset
+  location = /vercel.svg {
+    alias /usr/share/nginx/assets/vercel.svg;
+    add_header Cache-Control 'public, max-age=31536000, immutable';
+  }
+
+  location = /favicon.ico {
+    proxy_pass http://nextjs;
+  }
+
+  # Express api cached, geop, env test
+  location = /api/one {
+    proxy_pass http://express;
+    proxy_cache mycache;
+    add_header X-My-Geo $geoip_country_code;
+    add_header X-Test "<%= ENV['TEST'] %>";
+  }
+
+  # Express api hide cache-control
+  location = /api/two {
+    proxy_pass http://express;
+    proxy_hide_header Cache-Control;
+  }
+}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      .red {
+        color: red;
+      }
+      .orange {
+        color: orange;
+      }
+      .yellow {
+        color: yellow;
+      }
+      .green {
+        color: green;
+      }
+      .blue {
+        color: blue;
+      }
+      .purple {
+        color: purple;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Split Clients</h1>
+
+    <section>
+      <h2>Split Clients Percentages</h2>
+
+      <p>
+        Split clients uses the murmurhash. You can use
+        <a
+          href="http://murmurhash.shorelabs.com/"
+          title="murmurhash online tool"
+        >
+          this online tool</a
+        >
+        to know value you can expect from an input. If we add "test value" to
+        the website we get a percentage of 21.72%. When we enter this field into
+        the form below, we can expect to get assigned the color orange based on
+        the split_clients configuration.
+      </p>
+
+      <code>
+        <pre>
+          split_clients $cookie_color_token $var_color {
+            16.6% red; # 0% - 16.6%
+            16.6% orange; # 16.6% - 33.2%
+            16.6% yellow; # 33.2% - 49.8%
+            16.6% green; # 49.8% - 66.4%
+            16.6% blue; # 66.4% - 83%
+            * purple; # 83% - 100%
+          }
+        </pre>
+      </code>
+    </section>
+
+    <section>
+      <h2>Set Cookie split-ip token</h2>
+      <p class="<%=color%>">color <%= color %></p>
+      <input id="cookie-input" type="text" />
+      <button id="cookie-button">Add color cookie</button>
+    </section>
+  </body>
+
+  <script>
+    /** @type {HTMLInputElement} */
+    const input = document.getElementById("cookie-input");
+    /** @type {HTMLButtonElement} */
+    const button = document.getElementById("cookie-button");
+
+    button.addEventListener("click", () => {
+      document.cookie = `color=${input.value}`;
+      window.location.reload();
+    });
+  </script>
+</html>
