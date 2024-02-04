@@ -50,19 +50,6 @@ var warning =
   "memory, and will not scale past a single process.";
 
 /**
- * Node.js 0.8+ async implementation.
- * @private
- */
-
-/* istanbul ignore next */
-var setImmediate =
-  typeof setImmediate === "function"
-    ? setImmediate
-    : function (fn) {
-        process.nextTick(fn.bind.apply(fn, arguments));
-      };
-
-/**
  * Setup session store with the given `options`.
  *
  * @param {Object} [options]
