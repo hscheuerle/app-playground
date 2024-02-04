@@ -1,7 +1,6 @@
-// @ts-nocheck
-
 /**
  * Module dependencies.
+ * @typedef {import("cookie").CookieSerializeOptions & { originalMaxAge: number | Date | undefined }} CookieType
  */
 
 import { serialize as _serialize } from "cookie";
@@ -10,10 +9,32 @@ import Deprecate from "depd";
 const deprecate = Deprecate("express-session");
 
 export default class Cookie {
+  /** @param {Object} options */
   constructor(options) {
+    /** @type {CookieType['originalMaxAge']} */
+    this.originalMaxAge = undefined;
+    /** @type {CookieType['partitioned']} */
+    this.partitioned = undefined;
+    /** @type {CookieType['priority']} */
+    this.priority = undefined;
+    /** @type {CookieType['expires']} */
+    this._expires = undefined;
+    /** @type {CookieType['secure']} */
+    this.secure = undefined;
+    /** @type {CookieType['httpOnly']} */
+    this.httpOnly = undefined;
+    /** @type {CookieType['domain']} */
+    this.domain = undefined;
+    /** @type {CookieType['path']} */
+    this.path = undefined;
+    /** @type {CookieType['sameSite']} */
+    this.sameSite = undefined;
+
     this.options = options;
     this.path = "/";
-    this.maxAge = null;
+    /** @type {CookieType['maxAge']} */
+    this.maxAge = undefined;
+
     this.httpOnly = true;
     if (this.options) {
       if (typeof this.options !== "object") {
@@ -22,6 +43,7 @@ export default class Cookie {
 
       for (var key in this.options) {
         if (key !== "data") {
+          // @ts-ignore
           this[key] = options[key];
         }
       }
@@ -41,6 +63,7 @@ export default class Cookie {
     return this._expires;
   }
 
+  /** @param {number | Date | undefined} ms */
   set maxAge(ms) {
     if (ms && typeof ms !== "number" && !(ms instanceof Date)) {
       throw new TypeError("maxAge must be a number or Date");
@@ -59,6 +82,7 @@ export default class Cookie {
       : this.expires;
   }
 
+  /** @returns {CookieType} */
   get data() {
     return {
       originalMaxAge: this.originalMaxAge,
@@ -73,8 +97,12 @@ export default class Cookie {
     };
   }
 
+  /**
+   * @param {string} name
+   * @param {string} val
+   */
   serialize(name, val) {
-    return this._serialize(name, val, this.data);
+    return _serialize(name, val, this.data);
   }
 
   toJSON() {
