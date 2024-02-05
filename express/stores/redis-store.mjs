@@ -1,11 +1,15 @@
 // @ts-nocheck
-import { Store } from "express-session";
+
+import { EventEmitter } from "events";
+import Cookie from "../session/cookie.mjs";
+import Session from "../session/session.mjs";
 
 const noop = (_err, _data) => {};
 
-class RedisStore extends Store {
+class RedisStore extends EventEmitter {
   constructor(opts) {
     super();
+
     this.prefix = opts.prefix == null ? "sess:" : opts.prefix;
     this.scanCount = opts.scanCount || 100;
     this.serializer = opts.serializer || JSON;
@@ -171,6 +175,42 @@ class RedisStore extends Store {
       keys.push(key);
     }
     return keys;
+  }
+
+  regenerate(req, fn) {
+    var self = this;
+    this.destroy(req.sessionID, function (err) {
+      self.generate(req);
+      fn(err);
+    });
+  }
+
+  load(sid, fn) {
+    var self = this;
+    this.get(sid, function (err, sess) {
+      if (err) return fn(err);
+      if (!sess) return fn();
+      var req = { sessionID: sid, sessionStore: self };
+      fn(null, self.createSession(req, sess));
+    });
+  }
+
+  createSession(req, sess) {
+    var expires = sess.cookie.expires;
+    var originalMaxAge = sess.cookie.originalMaxAge;
+
+    sess.cookie = new Cookie(sess.cookie);
+
+    if (typeof expires === "string") {
+      // convert expires to a Date object
+      sess.cookie.expires = new Date(expires);
+    }
+
+    // keep originalMaxAge intact
+    sess.cookie.originalMaxAge = originalMaxAge;
+
+    req.session = new Session(req, sess);
+    return req.session;
   }
 }
 

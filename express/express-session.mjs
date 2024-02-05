@@ -11,9 +11,7 @@ import { sign, unsign } from "cookie-signature";
 import { sync as uid } from "uid-safe";
 
 import Cookie from "./session/cookie.mjs";
-import MemoryStore from "./stores/memory-store.mjs";
 import Session from "./session/session.mjs";
-import Store from "./session/store.mjs";
 
 const debug = Debug("express-session");
 const deprecate = Deprecate("express-session");
@@ -28,28 +26,10 @@ var env = process.env.NODE_ENV;
 
 export default session;
 
-/**
- * Expose constructors.
- */
-
-const _Store = Store;
-export { _Store as Store };
 const _Cookie = Cookie;
 export { _Cookie as Cookie };
 const _Session = Session;
 export { _Session as Session };
-const _MemoryStore = MemoryStore;
-export { _MemoryStore as MemoryStore };
-
-/**
- * Warning message for `MemoryStore` usage in production.
- * @private
- */
-
-var warning =
-  "Warning: connect.session() MemoryStore is not\n" +
-  "designed for a production environment, as it will leak\n" +
-  "memory, and will not scale past a single process.";
 
 /**
  * Setup session store with the given `options`.
@@ -63,7 +43,7 @@ var warning =
  * @param {Boolean} [options.rolling] Enable/disable rolling session expiration
  * @param {Boolean} [options.saveUninitialized] Save uninitialized sessions to the store
  * @param {String|Array} [options.secret] Secret for signing session ID
- * @param {Object} [options.store=MemoryStore] Session store
+ * @param {Object} [options.store] Session store
  * @param {String} [options.unset]
  * @return {Function} middleware
  * @public
@@ -82,7 +62,7 @@ function session(options) {
   var name = opts.name || opts.key || "connect.sid";
 
   // get the session store
-  var store = opts.store || new MemoryStore();
+  var store = opts.store;
 
   // get the trust proxy setting
   var trustProxy = opts.proxy;
@@ -132,12 +112,6 @@ function session(options) {
 
   if (!secret) {
     deprecate("req.secret; provide secret option");
-  }
-
-  // notify user that this store is not
-  // meant for a production environment
-  if (env === "production" && store instanceof MemoryStore) {
-    console.warn(warning);
   }
 
   // generates the new session
